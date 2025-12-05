@@ -1,22 +1,22 @@
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+    provider = "sqlite"
+    url = env("DATABASE_URL")
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  workspaces WorkspaceMember[]
-  createdAt DateTime @default(now())
+    id String @id @default(uuid())
+    email String @unique
+    password String
+    workspaces WorkspaceMember[]
+    createdAt DateTime @default(now())
 }
 
 model Workspace {
-  id        String @id @default(uuid())
+    id        String   @id @default(uuid())
   name      String
   ownerId   String
   members   WorkspaceMember[]
