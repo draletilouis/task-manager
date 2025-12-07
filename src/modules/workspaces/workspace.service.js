@@ -56,3 +56,40 @@ export async function getWorkspaces(userId) {
 
     return {workspaces}
 }
+
+export async function updateWorkspace(workspaceId, userId, data) {
+    const { name } = data;
+
+    // Validate workspace name
+    if (!name || name.trim().length === 0) {
+        throw new Error("Workspace name is required");
+    }
+    // Update workspace
+    const membership = await prisma.workspaceMember.findFirst({
+        where: {
+            workspaceId: workspaceId,
+            userId: userId,
+            role: { in: ['OWNER', 'ADMIN'] }
+        }
+    });
+
+    if (!membership) {
+        throw new Error("You do not have permission to update this workspace");
+    }   
+
+    const workspace = await prisma.workspace.update({
+        where: { id: workspaceId },
+        data: { name: name.trim() },
+    });
+
+    return {
+        message: "Workspace updated successfully",
+        workspace: {
+            id: workspace.id,
+            name: workspace.name,
+            ownerId: workspace.ownerId,
+            createdAt: workspace.createdAt,
+        }
+
+    };
+}

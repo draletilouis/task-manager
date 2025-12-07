@@ -20,30 +20,52 @@ Built with **Node.js**, **Express**, and **Prisma ORM** — designed for scalabi
 
 ## 📌 Project Status
 
-### ✅ Completed Features – *Authentication System*
+### ✅ Completed Features
 
+**Authentication System**
 * ES6 module setup
 * Prisma + SQLite database integration
 * User registration & login
 * Email & password validation
 * Secure password hashing with **bcrypt**
 * JWT Authentication
-
   * Access token (**15 min**)
   * Refresh token (**7 days**)
 * Token refresh endpoint
 * Auth middleware for protected routes
 * Global error handling
 
+**Workspace Management**
+* Create workspace (user becomes owner automatically)
+* List user workspaces (shows all workspaces where user is a member)
+
 ---
 
 ### 🚧 Pending Features
 
-* 📁 Workspace Management
-* 📋 Project Management
-* ✓ Task Management
-* 💬 Comments System
-* 🚀 Advanced Collaboration Features
+**📁 Workspace Management** *(Partial)*
+* Update workspace name
+* Delete workspace
+* Invite members to workspace
+* Remove members from workspace
+* Assign roles (Owner, Admin, Member)
+
+**📋 Project Management**
+* Create/list/update/delete projects
+* Assign projects to workspace members
+
+**✓ Task Management**
+* Create/list/update/delete tasks
+* Task assignment & status tracking
+* Priority levels & due dates
+
+**💬 Comments System**
+* Add/list/update/delete comments on tasks
+
+**🚀 Advanced Features**
+* File attachments
+* Activity logs
+* Real-time updates
 
 ---
 
@@ -63,7 +85,11 @@ task-manager-api/
  │  │  │  ├─ auth.service.js
  │  │  │  ├─ auth.routes.js
  │  │  │  └─ auth.middleware.js
- │  │  ├─ workspaces/ (pending)
+ │  │  ├─ workspaces/
+ │  │  │  ├─ workspace.controller.js
+ │  │  │  ├─ workspace.service.js
+ │  │  │  ├─ workspace.routes.js
+ │  │  │  └─ workspace.middleware.js
  │  │  ├─ projects/ (pending)
  │  │  ├─ tasks/ (pending)
  │  │  └─ comments/ (pending)

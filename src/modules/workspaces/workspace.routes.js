@@ -12,4 +12,8 @@ router.post("/", authMiddleware, WorkspaceController.createWorkspace);
 // Route to get all workspaces for the authenticated user
 router.get("/", authMiddleware, WorkspaceController.getWorkspaces);
 
+// Route to update workspace name
+router.put("/:workspaceId", authMiddleware, WorkspaceController.updateWorkspace);
+
+
 export default router;
