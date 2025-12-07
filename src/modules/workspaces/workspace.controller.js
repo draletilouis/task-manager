@@ -82,3 +82,19 @@ export async function removeMember(req, res) {
         res.status(400).json({ error: error.message });
     }
 }
+
+/**
+ * Handle member role update
+ */
+export async function updateMemberRole(req, res) {
+    try {
+        const updaterId = req.user.userId;
+        const workspaceId = req.params.workspaceId;
+        const memberId = req.params.memberId;
+        const { newRole } = req.body;
+        const result = await workspaceService.updateMemberRole(workspaceId, updaterId, memberId, newRole);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    } 
+}

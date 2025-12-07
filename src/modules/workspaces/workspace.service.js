@@ -224,3 +224,42 @@ export async function removeMember(workspaceId, removerId, memberId) {
     });
     return { message: "Member removed successfully" };
 }
+
+export async function updateMemberRole(workspaceId, updaterId, memberId, newRole) {
+    // Check if updater has owner role
+    const updaterMembership = await prisma.workspaceMember.findFirst({
+        where: {
+            workspaceId: workspaceId,
+            userId: updaterId,
+            role: 'OWNER'
+        }
+    });
+
+    if (!updaterMembership) {
+        throw new Error("Only the workspace owner can update member roles");
+    }
+    // Check if member exists
+    const membership = await prisma.workspaceMember.findFirst({
+        where: {
+            workspaceId: workspaceId,
+            userId: memberId
+        }
+    });
+
+    if (!membership) {
+        throw new Error("Member not found in this workspace");
+    }
+    // Update member role
+    const updatedMembership = await prisma.workspaceMember.update({
+        where: { id: membership.id },
+        data: { role: newRole }
+    });
+    return {
+        message: "Member role updated successfully",
+        member: {
+            id: updatedMembership.id,
+            userId: updatedMembership.userId,
+            role: updatedMembership.role
+        }
+    };
+}

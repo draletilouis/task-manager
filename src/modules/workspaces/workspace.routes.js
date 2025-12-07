@@ -23,4 +23,6 @@ router.post("/:workspaceId/members", authMiddleware, WorkspaceController.inviteM
 
 router.delete("/:workspaceId/members/:memberId", authMiddleware, WorkspaceController.removeMember);
 
+router.put("/:workspaceId/members/:memberId/role", authMiddleware, WorkspaceController.updateMemberRole);
+
 export default router;
