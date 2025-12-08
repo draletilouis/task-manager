@@ -53,7 +53,7 @@ Built with **Node.js**, **Express**, and **Prisma ORM** — designed for scalabi
 * Delete projects (OWNER/ADMIN only)
 * Role-based access control
 
-**Task Management** ✨ *NEW*
+**Task Management**
 * Create tasks in projects
 * List all tasks in a project
 * Update task details (title, description, status, priority, due date)
@@ -64,12 +64,17 @@ Built with **Node.js**, **Express**, and **Prisma ORM** — designed for scalabi
 * Due date support
 * Full CRUD operations with role-based permissions
 
+**Comment System** ✨ *NEW*
+* Add comments to tasks
+* List all comments on a task
+* Update own comments
+* Delete comments (creator or ADMIN/OWNER)
+* Chronological ordering
+* Full CRUD operations with role-based permissions
+
 ---
 
 ### 🚧 Pending Features
-
-**💬 Comments System**
-* Add/list/update/delete comments on tasks
 
 **🚀 Advanced Features**
 * File attachments
@@ -103,13 +108,17 @@ task-manager-api/
  │  │  │  ├─ project.controller.js
  │  │  │  ├─ project.service.js
  │  │  │  └─ project.routes.js
- │  │  └─ tasks/
- │  │     ├─ task.controller.js
- │  │     ├─ task.service.js
- │  │     ├─ task.service.test.js
- │  │     ├─ task.routes.js
- │  │     ├─ task.routes.test.js
- │  │     └─ task.model.js
+ │  │  ├─ tasks/
+ │  │  │  ├─ task.controller.js
+ │  │  │  ├─ task.service.js
+ │  │  │  ├─ task.service.test.js
+ │  │  │  ├─ task.routes.js
+ │  │  │  ├─ task.routes.test.js
+ │  │  │  └─ task.model.js
+ │  │  └─ comments/
+ │  │     ├─ comment.controller.js
+ │  │     ├─ comment.service.js
+ │  │     └─ comment.routes.js
  │  ├─ database/
  │  │  └─ prisma.js
  │  ├─ shared/
@@ -182,6 +191,17 @@ task-manager-api/
 | `createdAt`   | DateTime     | Timestamp                   |
 | `updatedAt`   | DateTime     | Last update                 |
 
+### **Comment**
+
+| Field       | Type     | Description            |
+| ----------- | -------- | ---------------------- |
+| `id`        | UUID     | Primary Key            |
+| `content`   | String   | Comment text (required)|
+| `taskId`    | String   | FK → Task              |
+| `createdBy` | String   | FK → User              |
+| `createdAt` | DateTime | Timestamp              |
+| `updatedAt` | DateTime | Last update            |
+
 ---
 
 ## 🔌 API Endpoints
@@ -222,6 +242,15 @@ POST   /workspaces/:workspaceId/projects/:projectId/tasks         # Create task
 GET    /workspaces/:workspaceId/projects/:projectId/tasks         # List tasks
 PUT    /workspaces/:workspaceId/projects/:projectId/tasks/:taskId # Update task
 DELETE /workspaces/:workspaceId/projects/:projectId/tasks/:taskId # Delete task
+```
+
+### Comments
+
+```http
+POST   /workspaces/tasks/:taskId/comments      # Create comment
+GET    /workspaces/tasks/:taskId/comments      # List comments
+PUT    /workspaces/comments/:commentId         # Update comment
+DELETE /workspaces/comments/:commentId         # Delete comment
 ```
 
 ---
@@ -388,6 +417,15 @@ curl -X PUT http://localhost:5000/workspaces/WORKSPACE_ID/projects/PROJECT_ID/ta
   -d '{"status":"IN_PROGRESS","priority":"MEDIUM"}'
 ```
 
+### 6. Add Comment to Task
+
+```bash
+curl -X POST http://localhost:5000/workspaces/tasks/TASK_ID/comments \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -d '{"content":"Great progress on this task!"}'
+```
+
 ---
 
 ## 🛠️ Development Commands
@@ -412,7 +450,15 @@ curl -X PUT http://localhost:5000/workspaces/WORKSPACE_ID/projects/PROJECT_ID/ta
 
 ## 📝 Recent Updates
 
-### Version 1.1.0 (Latest)
+### Version 1.2.0 (Latest)
+- ✅ Added complete Comment system
+- ✅ Implemented comment CRUD operations
+- ✅ Comment ownership and permissions
+- ✅ Role-based comment deletion (ADMIN/OWNER override)
+- ✅ Cascade deletion when task is deleted
+- ✅ Chronological comment ordering
+
+### Version 1.1.0
 - ✅ Added complete Task management module
 - ✅ Implemented task CRUD operations
 - ✅ Added task assignment functionality
@@ -420,7 +466,6 @@ curl -X PUT http://localhost:5000/workspaces/WORKSPACE_ID/projects/PROJECT_ID/ta
 - ✅ Added comprehensive test suite (Jest + Supertest)
 - ✅ Fixed route hierarchy (workspace → project → task)
 - ✅ Full integration testing completed
-- ✅ Updated API documentation
 
 ---
 
