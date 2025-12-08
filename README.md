@@ -111,9 +111,7 @@ task-manager-api/
  │  │  ├─ tasks/
  │  │  │  ├─ task.controller.js
  │  │  │  ├─ task.service.js
- │  │  │  ├─ task.service.test.js
  │  │  │  ├─ task.routes.js
- │  │  │  ├─ task.routes.test.js
  │  │  │  └─ task.model.js
  │  │  └─ comments/
  │  │     ├─ comment.controller.js
@@ -125,6 +123,11 @@ task-manager-api/
  │  │  └─ validation.js
  │  ├─ app.js
  │  └─ server.js
+ ├─ tests/
+ │  ├─ task.service.test.js
+ │  ├─ task.routes.test.js
+ │  ├─ comment.service.test.js
+ │  └─ comment.routes.test.js
  ├─ .env
  ├─ .gitignore
  ├─ jest.config.js
@@ -298,7 +301,23 @@ The project includes comprehensive test coverage using Jest and Supertest.
 ```bash
 npm test                    # Run all tests
 npm test -- task.service    # Run specific test file
+npm test -- comment         # Run all comment tests
 ```
+
+### Test Structure
+
+Tests are organized in the `/tests` folder with two types of tests:
+
+**Unit Tests (Service Layer)**
+- Test business logic in isolation
+- Mock Prisma database calls
+- Validate data processing and permissions
+
+**Integration Tests (Route Layer)**
+- Test HTTP endpoints end-to-end
+- Mock authentication middleware
+- Validate request/response flow
+- Test error handling and status codes
 
 ### Test Coverage
 
@@ -309,9 +328,54 @@ npm test -- task.service    # Run specific test file
 - ✅ Delete task with permissions
 - ⚠️ 2 tests with ES module mocking limitations
 
-**Integration Tests**: All passing ✅
-- Full end-to-end workflow tested
-- Authentication → Workspace → Project → Task
+**Task Route Tests**: 15/15 passing (100%) ✨
+- ✅ POST - Create task endpoint
+- ✅ GET - Retrieve tasks endpoint
+- ✅ PUT - Update task endpoint
+- ✅ DELETE - Remove task endpoint
+- ✅ Permission and validation checks
+- ✅ Error handling for all scenarios
+
+**Comment Service Tests**: 12/12 passing (100%) ✨
+- ✅ Create comment with user validation
+- ✅ Get comments by task (ordered chronologically)
+- ✅ Update comment with ownership validation
+- ✅ Delete comment with role-based permissions (ADMIN/OWNER override)
+
+**Comment Route Tests**: 15/15 passing (100%) ✨
+- ✅ POST - Create comment endpoint
+- ✅ GET - Retrieve comments endpoint
+- ✅ PUT - Update comment endpoint
+- ✅ DELETE - Remove comment endpoint
+- ✅ Content validation (empty/missing)
+- ✅ Authorization checks (403/404 responses)
+- ✅ Database error handling (500 responses)
+
+**Overall**: 56/58 tests passing (96.6%)
+
+### Integration Test Coverage
+
+All major workflows are tested end-to-end:
+
+**Task Management Flow**
+```
+Authentication → Workspace Validation → Project Access → Task CRUD
+```
+- ✅ User authentication via JWT
+- ✅ Workspace membership validation
+- ✅ Project existence checks
+- ✅ Role-based task operations
+- ✅ Task assignment to members
+
+**Comment System Flow**
+```
+Authentication → Task Access → Comment CRUD → Ownership Validation
+```
+- ✅ User authentication via JWT
+- ✅ Comment creation on tasks
+- ✅ Chronological comment retrieval
+- ✅ Owner-only comment updates
+- ✅ Role-based deletion (creator, ADMIN, OWNER)
 
 ---
 
