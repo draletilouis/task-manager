@@ -7,6 +7,7 @@ const Register = () => {
   const { register } = useContext(AuthContext);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Handle registration and manage loading state
   const handleRegister = async (email, password, name) => {
     setIsLoading(true);
     try {

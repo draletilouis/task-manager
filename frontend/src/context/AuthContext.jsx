@@ -24,12 +24,14 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   // Initialize state from localStorage
+  // Initialize user state from localStorage
   const [user, setUser] = useState(() => {
     const token = localStorage.getItem('accessToken');
     const storedUser = localStorage.getItem('user');
     return token && storedUser ? JSON.parse(storedUser) : null;
   });
 
+  // Login user and store tokens
   const login = async (email, password) => {
     const response = await apiClient.post('/auth/login', { email, password });
     const { accessToken, refreshToken } = response.data;
@@ -47,11 +49,13 @@ export const AuthProvider = ({ children }) => {
     navigate('/workspaces');
   };
 
+  // Register new user then login
   const register = async (email, password, name) => {
     await apiClient.post('/auth/register', { email, password, name });
     await login(email, password);
   };
 
+  // Logout user and clear storage
   const logout = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');

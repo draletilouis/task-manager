@@ -10,6 +10,7 @@ const LoginForm = ({ onSubmit, isLoading }) => {
 
   const [error, setError] = useState('');
 
+  // Handle form submission with error handling
   const handleFormSubmit = async (data) => {
     try {
       setError('');
