@@ -2,41 +2,65 @@ import apiClient from "./client";
 
 // Fetch all workspaces for current user
 export const getWorkspaces = async () => {
-  const response = await apiClient.get("/workspaces");
-  return response.data;
+  try {
+    const response = await apiClient.get("/workspaces");
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to fetch workspaces");
+  }
 };
 
 // Create new workspace
 export const createWorkspace = async (workspaceData) => {
-  const response = await apiClient.post("/workspaces", workspaceData);
-  return response.data;
+  try {
+    const response = await apiClient.post("/workspaces", workspaceData);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to create workspace");
+  }
 };
 
 // Update workspace details
 export const updateWorkspace = async (workspaceId, workspaceData) => {
-  const response = await apiClient.put(`/workspaces/${workspaceId}`, workspaceData);
-  return response.data;
+  try {
+    const response = await apiClient.put(`/workspaces/${workspaceId}`, workspaceData);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to update workspace");
+  }
 };
 
 // Delete workspace
 export const deleteWorkspace = async (workspaceId) => {
-  const response = await apiClient.delete(`/workspaces/${workspaceId}`);
-  return response.data;
+  try {
+    const response = await apiClient.delete(`/workspaces/${workspaceId}`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to delete workspace");
+  }
 };
 
 // Add member to workspace
 export const addWorkspaceMember = async (workspaceId, memberData) => {
-  const response = await apiClient.post(
-    `/workspaces/${workspaceId}/members`,
-    memberData
-  );
-  return response.data;
+  try {
+    const response = await apiClient.post(
+      `/workspaces/${workspaceId}/members`,
+      memberData
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to add member");
+  }
 };
 
 // Remove member from workspace
 export const removeWorkspaceMember = async (workspaceId, memberId) => {
-  const response = await apiClient.delete(
-    `/workspaces/${workspaceId}/members/${memberId}`
-  );
-  return response.data;
+  try {
+    const response = await apiClient.delete(
+      `/workspaces/${workspaceId}/members/${memberId}`
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to remove member");
+  }
 };
