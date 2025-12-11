@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
 import { AuthProvider } from '../context/AuthContext';
 import PrivateRoute from './PrivateRoute';
+import Navbar from '../components/layout/Navbar';
 
 // Page imports
 import Login from '../pages/auth/Login';
@@ -14,6 +15,7 @@ import TaskDetail from '../pages/tasks/TaskDetail';
 const RootLayout = () => {
   return (
     <AuthProvider>
+      <Navbar />
       <Outlet />
     </AuthProvider>
   );
