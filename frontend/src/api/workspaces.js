@@ -40,6 +40,16 @@ export const deleteWorkspace = async (workspaceId) => {
   }
 };
 
+// Get workspace members
+export const getWorkspaceMembers = async (workspaceId) => {
+  try {
+    const response = await apiClient.get(`/workspaces/${workspaceId}/members`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to fetch members");
+  }
+};
+
 // Add member to workspace
 export const addWorkspaceMember = async (workspaceId, memberData) => {
   try {

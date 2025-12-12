@@ -178,9 +178,26 @@ const TaskDetail = () => {
         {task.dueDate && (
           <div className="mb-4">
             <h2 className="text-lg font-semibold text-gray-700 mb-2">Due Date</h2>
-            <p className="text-gray-600">=Å {new Date(task.dueDate).toLocaleDateString()}</p>
+            <p className="text-gray-600">ðŸ“… {new Date(task.dueDate).toLocaleDateString()}</p>
           </div>
         )}
+
+        {/* Assignee */}
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold text-gray-700 mb-2">Assigned To</h2>
+          <p className="text-gray-600">
+            {task.assignee ? (
+              <span className="flex items-center gap-2">
+                <span className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm font-medium">
+                  {task.assignee.email?.charAt(0).toUpperCase() || '?'}
+                </span>
+                {task.assignee.email || 'Unknown User'}
+              </span>
+            ) : (
+              'Unassigned'
+            )}
+          </p>
+        </div>
 
         {/* Status Update */}
         <div className="mb-4">

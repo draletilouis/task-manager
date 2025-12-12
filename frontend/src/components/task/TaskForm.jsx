@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Button from '../common/Button';
 import Input from '../common/Input';
+import { getWorkspaceMembers } from '../../api/workspaces';
 
 const TaskForm = ({ onSubmit, onCancel, initialData = null, workspaceId, projectId }) => {
   const [formData, setFormData] = useState({
@@ -9,7 +10,29 @@ const TaskForm = ({ onSubmit, onCancel, initialData = null, workspaceId, project
     status: initialData?.status || 'TODO',
     priority: initialData?.priority || 'MEDIUM',
     dueDate: initialData?.dueDate ? new Date(initialData.dueDate).toISOString().split('T')[0] : '',
+    assigneeId: initialData?.assignee?.id || '',
   });
+
+  const [members, setMembers] = useState([]);
+  const [loadingMembers, setLoadingMembers] = useState(false);
+
+  useEffect(() => {
+    const fetchMembers = async () => {
+      if (!workspaceId) return;
+
+      try {
+        setLoadingMembers(true);
+        const data = await getWorkspaceMembers(workspaceId);
+        setMembers(data);
+      } catch (error) {
+        console.error('Failed to fetch members:', error);
+      } finally {
+        setLoadingMembers(false);
+      }
+    };
+
+    fetchMembers();
+  }, [workspaceId]);
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -134,6 +157,27 @@ const TaskForm = ({ onSubmit, onCancel, initialData = null, workspaceId, project
           onChange={handleChange}
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
+      </div>
+
+      {/* Assignee */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Assignee
+        </label>
+        <select
+          name="assigneeId"
+          value={formData.assigneeId}
+          onChange={handleChange}
+          disabled={loadingMembers}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+        >
+          <option value="">Unassigned</option>
+          {members.map(member => (
+            <option key={member.userId} value={member.userId}>
+              {member.user?.email || 'Unknown User'}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Submit Error */}

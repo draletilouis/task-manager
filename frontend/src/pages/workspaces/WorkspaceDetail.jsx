@@ -1,9 +1,10 @@
 import { useParams, Link } from 'react-router-dom';
 import { useProjects } from '../../hooks/useProjects';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
 import Spinner from '../../components/common/Spinner';
+import { getWorkspaceMembers, addWorkspaceMember, removeWorkspaceMember } from '../../api/workspaces';
 
 const WorkspaceDetail = () => {
   // Get workspaceId from URL
@@ -19,10 +20,35 @@ const WorkspaceDetail = () => {
   } = useProjects(workspaceId);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [formData, setFormData] = useState({ 
-    name: '', 
-    description: '' 
+  const [formData, setFormData] = useState({
+    name: '',
+    description: ''
   });
+
+  // Members state
+  const [members, setMembers] = useState([]);
+  const [loadingMembers, setLoadingMembers] = useState(true);
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+
+  // Fetch members
+  useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        setLoadingMembers(true);
+        const data = await getWorkspaceMembers(workspaceId);
+        setMembers(data);
+      } catch (error) {
+        console.error('Failed to fetch members:', error);
+      } finally {
+        setLoadingMembers(false);
+      }
+    };
+
+    if (workspaceId) {
+      fetchMembers();
+    }
+  }, [workspaceId]);
 
   // Handle create project
   const handleCreateProject = async (e) => {
@@ -41,6 +67,35 @@ const WorkspaceDetail = () => {
     if (window.confirm('Delete this project?')) {
       try {
         await removeProject(projectId);
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+  };
+
+  // Handle invite member
+  const handleInviteMember = async (e) => {
+    e.preventDefault();
+    try {
+      await addWorkspaceMember(workspaceId, { email: inviteEmail });
+      setShowInviteModal(false);
+      setInviteEmail('');
+      // Refresh members list
+      const data = await getWorkspaceMembers(workspaceId);
+      setMembers(data);
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  // Handle remove member
+  const handleRemoveMember = async (memberId) => {
+    if (window.confirm('Remove this member from the workspace?')) {
+      try {
+        await removeWorkspaceMember(workspaceId, memberId);
+        // Refresh members list
+        const data = await getWorkspaceMembers(workspaceId);
+        setMembers(data);
       } catch (err) {
         alert(err.message);
       }
@@ -126,10 +181,44 @@ const WorkspaceDetail = () => {
 
       {/* Members section */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">Members</h2>
-        <div className="bg-gray-50 rounded-lg p-4">
-          <p className="text-gray-500">Members management coming soon...</p>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Members</h2>
+          <Button onClick={() => setShowInviteModal(true)}>
+            + Invite Member
+          </Button>
         </div>
+
+        {loadingMembers ? (
+          <div className="text-gray-500">Loading members...</div>
+        ) : members.length === 0 ? (
+          <div className="bg-gray-50 rounded-lg p-4 text-center">
+            <p className="text-gray-500">No members yet</p>
+          </div>
+        ) : (
+          <div className="bg-white rounded-lg border divide-y">
+            {members.map(member => (
+              <div key={member.userId} className="p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-medium">
+                    {member.user?.email?.charAt(0).toUpperCase() || '?'}
+                  </div>
+                  <div>
+                    <p className="font-medium">{member.user?.email || 'Unknown User'}</p>
+                    <p className="text-sm text-gray-500">{member.role}</p>
+                  </div>
+                </div>
+                {member.role !== 'OWNER' && (
+                  <Button
+                    variant="danger"
+                    onClick={() => handleRemoveMember(member.userId)}
+                  >
+                    Remove
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Create Project Modal */}
@@ -170,6 +259,41 @@ const WorkspaceDetail = () => {
                 type="button"
                 variant="secondary"
                 onClick={() => setShowCreateModal(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {/* Invite Member Modal */}
+      {showInviteModal && (
+        <Modal
+          onClose={() => setShowInviteModal(false)}
+          title="Invite Member"
+        >
+          <form onSubmit={handleInviteMember}>
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email Address *
+              </label>
+              <input
+                type="email"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="member@example.com"
+                required
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <Button type="submit" className="flex-1">Invite</Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setShowInviteModal(false)}
               >
                 Cancel
               </Button>
