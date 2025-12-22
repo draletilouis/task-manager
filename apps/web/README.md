@@ -16,7 +16,7 @@ cp .env.example .env
 npm run dev:web
 ```
 
-Web app runs on **http://localhost:5173**
+Web app runs on **http://localhost:5173** (or next available port)
 
 ---
 
@@ -50,11 +50,21 @@ Web app runs on **http://localhost:5173**
 
 ### Workspace Management
 - Create, update, delete workspaces
-- Invite/remove members
+- Email-based member invitations
+- View and manage pending invitations
+- Accept/decline workspace invitations
+- Remove members
 - Update member roles (OWNER, ADMIN, MEMBER)
 - Role-based permissions
 - Pagination with configurable page size
 - Empty states with call-to-action
+
+### Search Functionality
+- Global search across workspaces, projects, and tasks
+- Keyboard shortcut (Cmd/Ctrl + K)
+- Real-time search results
+- Navigate directly to resources
+- Search modal with grouped results
 
 ### Project Management
 - CRUD operations for projects
@@ -98,16 +108,17 @@ apps/web/
 │   ├── components/
 │   │   ├── auth/                # Login, Register forms
 │   │   ├── layout/              # Navbar, Sidebar, Footer
-│   │   ├── common/              # Reusable UI (Button, Input, Modal, Toast, Spinner, etc.)
+│   │   ├── common/              # Reusable UI (Button, Input, Modal, Toast, Spinner, SearchModal, etc.)
 │   │   ├── workspace/           # WorkspaceCard, WorkspaceList
 │   │   ├── project/             # ProjectCard, ProjectForm
 │   │   ├── task/                # TaskCard, TaskBoard, TaskForm, TaskFilterBar
 │   │   └── comment/             # CommentForm, CommentList
 │   ├── pages/
-│   │   ├── auth/                # Login, Register pages
+│   │   ├── auth/                # Login, Register, ForgotPassword pages
 │   │   ├── workspaces/          # WorkspacesPage, WorkspaceDetail
 │   │   ├── projects/            # ProjectDetail
 │   │   ├── tasks/               # TaskDetail
+│   │   ├── invitations/         # InvitationsPage
 │   │   ├── profile/             # UserProfile
 │   │   └── settings/            # SettingsPage
 │   ├── context/
@@ -127,7 +138,9 @@ apps/web/
 │   │   ├── workspaces.js        # Workspace API calls
 │   │   ├── projects.js          # Project API calls
 │   │   ├── tasks.js             # Task API calls
-│   │   └── comments.js          # Comment API calls
+│   │   ├── comments.js          # Comment API calls
+│   │   ├── invitations.js       # Invitation API calls
+│   │   └── search.js            # Search API calls
 │   ├── routes/
 │   │   ├── index.jsx            # Route configuration
 │   │   └── PrivateRoute.jsx     # Auth guard
@@ -361,14 +374,24 @@ Production build is optimized and minified:
 
 ## Recent Updates
 
-### December 2025
+### December 2025 - Version 1.4.0
+- Rebranded to "Kazi"
+- Global search functionality (Cmd/Ctrl + K)
+- Invitation system (send, accept, decline invitations)
+- Invitation management page
+- Forgot password UI
+- CORS fixes for multiple ports
+- Updated navbar design (logo only)
+- Railway deployment support
+
+### December 2025 - Version 1.3.0
 - User profile page with workspace statistics
 - Settings page with password change
 - Error boundary component
 - Pagination on workspaces page
 - Fixed all linting issues
 
-### November 2025
+### November 2025 - Version 1.2.0
 - Drag-and-drop Kanban board
 - Task filtering and search
 - Comment system with full CRUD

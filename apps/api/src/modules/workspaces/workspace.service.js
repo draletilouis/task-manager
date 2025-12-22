@@ -1,4 +1,5 @@
 import prisma from "../../database/prisma.js";
+import * as invitationService from "../invitations/invitation.service.js";
 
 /**
  * Create a new workspace
@@ -218,67 +219,11 @@ export async function getWorkspaceMembers(workspaceId, userId) {
 /**
  * Invite a member to workspace
  * Only admins and owners can invite
+ * Now uses the invitation system instead of adding members directly
  */
 export async function inviteMember(workspaceId, inviterId, data) {
-    const {email, role = "MEMBER"} = data;
-
-    // Validate email
-    if (!email || email.trim().length === 0) {
-        throw new Error("Email is required to invite a member");
-    }
-
-    // Check if inviter has admin or owner role
-    const inviterMembership = await prisma.workspaceMember.findFirst({
-        where: {
-            workspaceId: workspaceId,
-            userId: inviterId,
-            role: {in: ['OWNER', 'ADMIN'] }
-        }
-    });
-
-    if (!inviterMembership) {
-        throw new Error("You do not have permission to invite members to this workspace");
-    }
-
-    // Find user by email
-    const user = await prisma.user.findUnique({
-        where: { email: email.trim() }
-    });
-
-    if (!user) {
-        throw new Error("User not found with this email");
-    }
-
-    // Check if user is already a member
-    const existingMembership = await prisma.workspaceMember.findFirst({
-        where: {
-            workspaceId: workspaceId,
-            userId: user.id
-        }
-    });
-
-    if (existingMembership) {
-        throw new Error("User is already a member of this workspace");
-    }
-
-    // Add member to workspace
-    const membership = await prisma.workspaceMember.create({
-        data: {
-            workspaceId: workspaceId,
-            userId: user.id,
-            role: role
-        }
-    });
-
-    return {
-        message: "Member invited successfully",
-        member: {
-            id: membership.id,
-            userId: user.id,
-            email: user.email,
-            role: membership.role
-        }
-    };
+    // Delegate to the invitation service
+    return invitationService.createInvitation(workspaceId, inviterId, data);
 }
 
 export async function removeMember(workspaceId, removerId, memberId) {

@@ -12,6 +12,7 @@ import Login from '../pages/auth/Login';
 import Register from '../pages/auth/Register';
 import ForgotPassword from '../pages/auth/ForgotPassword';
 import ResetPassword from '../pages/auth/ResetPassword';
+import AcceptInvitation from '../pages/invitations/AcceptInvitation';
 import WorkspacesPage from '../pages/workspaces/WorkspacesPage';
 import WorkspaceDetail from '../pages/workspaces/WorkspaceDetail';
 import ProjectDetail from '../pages/projects/ProjectDetail';
@@ -81,6 +82,10 @@ export const router = createBrowserRouter([
       {
         element: <PrivateRoute />,
         children: [
+          {
+            path: '/invitations/accept',
+            element: <AcceptInvitation />
+          },
           {
             path: '/workspaces',
             element: <WorkspacesPage />

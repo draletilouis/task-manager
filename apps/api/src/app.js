@@ -4,6 +4,7 @@ import workspaceRoutes from "./modules/workspaces/workspace.routes.js";
 import projectRoutes from "./modules/projects/project.routes.js";
 import taskRoutes from "./modules/tasks/task.routes.js";
 import commentRoutes from "./modules/comments/comment.routes.js";
+import invitationRoutes from "./modules/invitations/invitation.routes.js";
 
 const app = express();
 
@@ -11,7 +12,7 @@ const app = express();
 app.use((req, res, next) => {
   const allowedOrigins = process.env.FRONTEND_URL
     ? process.env.FRONTEND_URL.split(',')
-    : ['http://localhost:5173'];
+    : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'];
 
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
@@ -40,6 +41,7 @@ app.get('/health', (req, res) => {
 
 // Mount route modules
 app.use("/auth", authRoutes);
+app.use("/invitations", invitationRoutes);
 app.use("/workspaces", projectRoutes);
 app.use("/workspaces", workspaceRoutes);
 app.use("/workspaces", taskRoutes);

@@ -1,8 +1,9 @@
 import { useContext, useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation, useParams } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContextDefinition';
-import { User, LogOut, Settings, ChevronDown, LayoutGrid, Search, ChevronRight } from 'lucide-react';
+import { User, LogOut, Settings, ChevronDown, Search, ChevronRight } from 'lucide-react';
 import SearchModal from '../common/SearchModal';
+import kaziLogo from '../../assets/kazi_logo.svg';
 
 const Navbar = () => {
   const { user, logout, isAuthenticated } = useContext(AuthContext);
@@ -101,10 +102,11 @@ const Navbar = () => {
           {/* Left: Logo */}
           <div className="flex items-center">
             <Link to="/workspaces" className="flex items-center space-x-3 group">
-              <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center shadow-md group-hover:shadow-lg transition-all">
-                <LayoutGrid className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-gray-900 tracking-tight">Kazi</span>
+              <img
+                src={kaziLogo}
+                alt="Kazi Logo"
+                className="h-9 w-auto"
+              />
             </Link>
           </div>
 

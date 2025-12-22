@@ -2,7 +2,7 @@
 
 A modern, collaborative task management system built with React and Node.js. Features workspaces, projects, tasks with Kanban boards, team collaboration, and transactional email notifications.
 
-**Monorepo Architecture** | **JWT Authentication** | **PostgreSQL Database** | **100% Test Coverage** | **Email Integration** | **Modern UI/UX**
+**Monorepo Architecture** | **JWT Authentication** | **PostgreSQL Database** | **100% Test Coverage** | **Email Integration** | **Global Search** | **Modern UI/UX**
 
 ## Project Status
 
@@ -15,6 +15,8 @@ A modern, collaborative task management system built with React and Node.js. Fea
 | **Projects** | ✅ Complete | 100% tested (20 tests) |
 | **Tasks & Kanban** | ✅ Complete | 100% tested (31 tests) |
 | **Comments** | ✅ Complete | 100% tested (27 tests) |
+| **Invitations** | ✅ Complete | Email-based workspace invites |
+| **Global Search** | ✅ Complete | Search workspaces, projects, tasks |
 | **Email Service** | ✅ Complete | Resend integration active |
 | **Input Validation** | ✅ Complete | All routes protected |
 | **Password Reset** | ✅ Complete | Email-based flow |
@@ -75,8 +77,8 @@ JWT_REFRESH_SECRET="your-super-secret-refresh-token-key-change-this-in-productio
 PORT=5000
 NODE_ENV=development
 
-# Frontend URL (for CORS and email links)
-FRONTEND_URL="http://localhost:5173"
+# Frontend URL (for CORS and email links) - supports multiple ports
+FRONTEND_URL="http://localhost:5173,http://localhost:5174,http://localhost:5175"
 
 # Email Configuration (Resend)
 RESEND_API_KEY="re_your_api_key_here"
@@ -162,6 +164,9 @@ task-manager/
 ### Workspace Management
 - Create, update, and delete workspaces
 - Role-based access control (OWNER, ADMIN, MEMBER)
+- **Email-based member invitations** with Resend integration
+- Accept/decline workspace invitations
+- Pending invitation management
 - Invite/remove members
 - Update member roles
 - Pagination for workspace lists
@@ -189,17 +194,26 @@ task-manager/
 - Owner-only edits
 - Role-based deletion (ADMIN/OWNER override)
 
+### Search & Navigation
+- **Global search** across workspaces, projects, and tasks
+- **Keyboard shortcut** (Cmd/Ctrl + K) for quick access
+- Real-time search results with instant navigation
+- Grouped results by resource type
+- Search modal with modern UI
+
 ### UI/UX
 - **Authentication Pages**
   - 50/50 split design with branding side and form side
   - Gradient blue branding panel with Kazi logo
   - Single-screen layout with no scrolling required
+  - Forgot password flow with email reset
   - Responsive design (mobile-friendly)
   - Smooth color transitions and professional styling
 - **Modern Desktop Layout**
   - Collapsible sidebar navigation (w-72 expanded, w-16 collapsed)
   - Dark themed sidebar with workspace/project tree
-  - Responsive navbar with search button (⌘K hint)
+  - Clean navbar with Kazi logo and search shortcut (⌘K)
+  - Global search modal with keyboard navigation
   - Professional spacing and typography
   - Constrained content width (max-w-6xl) for optimal readability
 - **Component Library**
@@ -338,9 +352,23 @@ GET    /workspaces                              # List user workspaces
 GET    /workspaces/:workspaceId/members         # Get workspace members
 PUT    /workspaces/:workspaceId                 # Update workspace (OWNER/ADMIN)
 DELETE /workspaces/:workspaceId                 # Delete workspace (OWNER)
-POST   /workspaces/:workspaceId/members         # Invite member (OWNER/ADMIN)
 DELETE /workspaces/:workspaceId/members/:userId # Remove member (OWNER/ADMIN)
 PUT    /workspaces/:workspaceId/members/:userId # Update role (OWNER)
+```
+
+### Invitations
+```http
+POST   /invitations                        # Send workspace invitation via email
+GET    /invitations                        # List user invitations
+GET    /invitations/pending                # List pending invitations
+POST   /invitations/:invitationId/accept   # Accept invitation
+POST   /invitations/:invitationId/decline  # Decline invitation
+DELETE /invitations/:invitationId          # Delete invitation
+```
+
+### Search
+```http
+GET    /search?q=query                     # Global search across resources
 ```
 
 ### Projects
@@ -379,160 +407,6 @@ DELETE /workspaces/comments/:commentId       # Delete comment (owner/ADMIN/OWNER
 - **Week 3 (Jan 3-9)**: Frontend Testing Suite (Vitest + Testing Library)
 - **Week 4 (Jan 10-16)**: Activity Log System Implementation
 - **Week 5 (Jan 17-23)**: E2E Testing (Playwright/Cypress)
-
----
-
-## Recent Updates
-
-### December 2025 - Email Service Integration (Resend)
-- **Transactional Email System**
-  - Integrated Resend for reliable email delivery
-  - Professional HTML email templates with responsive design
-  - Welcome emails sent on user registration
-  - Password reset emails with secure token links
-  - Workspace invitation emails (ready for implementation)
-- **Email Service Architecture**
-  - Centralized email service (`email.service.js`)
-  - Non-blocking email sending (async/await with error handling)
-  - Graceful degradation when email is not configured
-  - Environment variable configuration for easy deployment
-- **Email Templates**
-  - Branded Kazi templates with consistent styling
-  - Mobile-responsive HTML design
-  - CTA buttons with clear actions
-  - Footer with copyright and branding
-- **Security & Best Practices**
-  - No email enumeration (doesn't reveal if email exists)
-  - Environment-based configuration
-  - Proper error logging without exposing sensitive info
-  - Removed development console.log of reset tokens
-
-### December 2025 - Password Reset Feature
-- **Complete Forgot Password Flow**
-  - Backend password reset service with secure JWT tokens
-  - Reset tokens expire after 1 hour
-  - Frontend forgot password page with email input
-  - Frontend reset password page with new password form
-  - Email enumeration protection (doesn't reveal if email exists)
-  - Token invalidation on password change
-  - Comprehensive validation for all password reset endpoints
-- **Database Schema Updates**
-  - Added `resetToken` field to User model (unique)
-  - Added `resetTokenExpiry` field for expiration tracking
-- **API Endpoints**
-  - `POST /auth/forgot-password` - Request password reset
-  - `POST /auth/reset-password` - Reset password with token
-- **Security Features**
-  - Tokens include user password hash (auto-invalidate on password change)
-  - 1-hour token expiration
-  - Prevents email enumeration attacks
-  - Strong password validation on reset
-
-### December 2025 - Input Validation & Security Hardening
-- **Comprehensive Input Validation**
-  - Implemented **express-validator** across all API endpoints
-  - Created validation rules for Auth, Workspace, Project, Task, and Comment modules
-  - Added field-level validation with detailed error responses
-  - Email normalization and sanitization
-  - String length limits and type checking
-  - XSS prevention through input sanitization
-  - Custom validation rules for complex business logic
-- **Security Improvements**
-  - Protection against injection attacks
-  - Input sanitization on all user-provided data
-  - Structured error responses with validation details
-  - Enhanced password strength requirements
-
-### December 2025 - Complete Test Coverage Achievement
-- **Comprehensive Testing Suite**
-  - Added 86 new tests across Auth, Workspace, and Project modules
-  - Achieved **100% test coverage** (144/144 tests passing)
-  - Fixed broken test suite (Jest + graceful-fs dependency issue)
-  - All modules now have complete unit and integration tests
-- **Test Breakdown:**
-  - Auth Service: 23 tests (register, login, JWT refresh, password change)
-  - Auth Routes: 16 tests (full API endpoint coverage)
-  - Workspace Service: 27 tests (CRUD, members, roles)
-  - Project Service: 20 tests (CRUD operations)
-  - Task Service: 16 tests (existing, now all passing)
-  - Task Routes: 15 tests (existing)
-  - Comment Service: 12 tests (existing)
-  - Comment Routes: 15 tests (existing)
-- **Node.js Version Requirements**
-  - Updated documentation for Node.js 20.19+ or 22.12+ requirement
-  - Added migration guide for upgrading Node.js
-  - Updated package.json engine requirements
-
-### December 2025 - Branding & Database Migration
-- **Rebranded to Kazi**
-  - Updated application name from "Task Manager" to "Kazi"
-  - New Kazi logo (kazi_logo.svg) throughout the application
-  - Updated AuthLayout with Kazi branding
-- **Authentication UI Overhaul**
-  - Implemented 50/50 split design on login and register pages
-  - Gradient blue branding panel (from-blue-600 via-blue-700 to-blue-900)
-  - Single-screen layout with no scrolling
-  - Improved color blending and transitions
-- **Database Migration to PostgreSQL**
-  - Migrated from SQLite to PostgreSQL
-  - Updated Prisma schema with proper relations
-  - Added Task.assignee relation for better data modeling
-  - Added User.name field for future enhancements
-- **API Enhancements**
-  - Added GET endpoint for workspace members
-  - Added GET endpoint for single task by ID
-  - Fixed task assignment field mapping (assignedTo)
-  - CORS configured to allow requests from anywhere
-- **Bug Fixes**
-  - Fixed task creation modal not closing on success
-  - Fixed task form freezing on "Saving..." state
-  - Fixed blank form when viewing tasks
-  - Resolved backend server crashes during development
-
-### December 2025 - Desktop UI Enhancements
-- **Sidebar Navigation**
-  - Implemented collapsible sidebar with dark theme (gray-900)
-  - Dynamic workspace tree with expandable projects
-  - On-demand project loading when workspace expanded
-  - Quick links to Profile and Settings
-  - Smooth transition animations
-- **Layout Improvements**
-  - Constrained content width for better readability (max-w-6xl)
-  - Increased font sizes across the application
-  - Professional spacing and padding (py-12, px-8)
-  - 2-column workspace grid with larger cards
-  - Enhanced WorkspaceCard with bigger icons (w-16 h-16)
-- **Typography Polish**
-  - Larger headings (text-4xl for page titles)
-  - Improved font weights and line heights
-  - Better text hierarchy throughout
-  - Consistent base font size (text-base)
-
-### December 2025 - Monorepo Migration
-- Migrated to npm workspaces monorepo structure
-- Renamed `backend/` to `apps/api/`
-- Renamed `frontend/` to `apps/web/`
-- Created unified workspace scripts
-- Updated all documentation
-
-### December 2025 - User Profile & Settings
-- User profile page with workspace statistics
-- Settings page with password change
-- Password change API endpoint
-- Error boundary component
-
-### November 2025 - Pagination & Polish
-- Pagination on workspaces page
-- Fixed all linting issues
-- Optimized frontend build (459KB)
-- Form validation improvements
-
-### November 2025 - Task Features
-- Drag-and-drop Kanban board
-- Task filtering and search
-- Comment system with full CRUD
-- Toast notification system
-- Skeleton loading states
 
 ---
 

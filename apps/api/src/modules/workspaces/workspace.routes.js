@@ -33,6 +33,9 @@ router.delete("/:workspaceId", authMiddleware, workspaceIdValidation, validate, 
 // Route to get workspace members
 router.get("/:workspaceId/members", authMiddleware, workspaceIdValidation, validate, WorkspaceController.getWorkspaceMembers);
 
+// Route to get workspace invitations
+router.get("/:workspaceId/invitations", authMiddleware, workspaceIdValidation, validate, WorkspaceController.getWorkspaceInvitations);
+
 // Route to invite member to workspace
 router.post("/:workspaceId/members", authMiddleware, inviteMemberValidation, validate, WorkspaceController.inviteMember);
 

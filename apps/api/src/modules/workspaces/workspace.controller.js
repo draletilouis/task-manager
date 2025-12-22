@@ -1,4 +1,5 @@
 import * as workspaceService from './workspace.service.js';
+import * as invitationService from '../invitations/invitation.service.js';
 
 /**
  * Handle workspace creation
@@ -121,6 +122,20 @@ export async function updateMemberRole(req, res) {
         const memberId = req.params.memberId;
         const { role } = req.body;
         const result = await workspaceService.updateMemberRole(workspaceId, updaterId, memberId, role);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+}
+
+/**
+ * Get workspace invitations
+ */
+export async function getWorkspaceInvitations(req, res) {
+    try {
+        const userId = req.user.userId;
+        const workspaceId = req.params.workspaceId;
+        const result = await invitationService.getWorkspaceInvitations(workspaceId, userId);
         res.status(200).json(result);
     } catch (error) {
         res.status(400).json({ error: error.message });

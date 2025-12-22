@@ -8,6 +8,7 @@ import api from '../../api/client';
 const ForgotPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [sentEmail, setSentEmail] = useState('');
   const [error, setError] = useState('');
 
   const {
@@ -23,6 +24,7 @@ const ForgotPassword = () => {
       await api.post('/auth/forgot-password', {
         email: data.email
       });
+      setSentEmail(data.email);
       setIsSuccess(true);
     } catch (err) {
       setError(err.response?.data?.error || 'An error occurred. Please try again.');
@@ -35,16 +37,12 @@ const ForgotPassword = () => {
     return (
       <AuthLayout
         title="Check your email"
-        subtitle="We've sent you password reset instructions"
+        subtitle={`Password reset link sent to ${sentEmail}`}
       >
         <div className="text-center">
           <div className="flex justify-center mb-4">
             <CheckCircle className="h-16 w-16 text-green-500" />
           </div>
-          <p className="text-gray-700 mb-6">
-            If an account exists with that email address, we've sent you a link to reset your password.
-            Please check your email and follow the instructions.
-          </p>
           <p className="text-sm text-gray-600 mb-6">
             Didn't receive an email? Check your spam folder or try again.
           </p>

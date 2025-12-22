@@ -27,9 +27,11 @@ API runs on **http://localhost:5000**
 | **Node.js 18+** | Runtime (ES modules) |
 | **Express 5** | REST API framework |
 | **Prisma ORM** | Type-safe database toolkit |
-| **SQLite** | Development database |
+| **PostgreSQL** | Production database |
+| **SQLite** | Development database (optional) |
 | **JWT** | Authentication tokens |
 | **bcrypt** | Password hashing |
+| **Resend** | Email service |
 | **Jest + Supertest** | Testing framework |
 
 ---
@@ -94,10 +96,19 @@ apps/api/
 - List user workspaces
 - Update workspace name (OWNER/ADMIN)
 - Delete workspace (OWNER only)
-- Invite members (OWNER/ADMIN)
+- Invite members via email (OWNER/ADMIN)
+- Accept/decline workspace invitations
 - Remove members (OWNER/ADMIN)
 - Update member roles (OWNER only)
 - Role-based access: OWNER, ADMIN, MEMBER
+
+### Invitation System
+- Email-based workspace invitations
+- Pending invitation management
+- Accept/decline invitation endpoints
+- Delete invitation (inviter or invitee)
+- Email notifications via Resend
+- Token-based invitation links
 
 ### Project Management
 - Create projects in workspace
@@ -187,6 +198,16 @@ apps/api/
 | createdAt | DateTime | Timestamp |
 | updatedAt | DateTime | Auto-updated |
 
+### Invitation
+| Field | Type | Description |
+|-------|------|-------------|
+| id | UUID | Primary key |
+| email | String | Invitee email |
+| workspaceId | String | FK → Workspace |
+| invitedBy | String | FK → User |
+| status | InvitationStatus | PENDING / ACCEPTED / DECLINED |
+| createdAt | DateTime | Timestamp |
+
 ### ActivityLog (Schema defined, not implemented)
 | Field | Type | Description |
 |-------|------|-------------|
@@ -216,9 +237,18 @@ POST   /workspaces                              # Create workspace
 GET    /workspaces                              # List user workspaces
 PUT    /workspaces/:workspaceId                 # Update workspace
 DELETE /workspaces/:workspaceId                 # Delete workspace
-POST   /workspaces/:workspaceId/members         # Invite member
 DELETE /workspaces/:workspaceId/members/:userId # Remove member
 PUT    /workspaces/:workspaceId/members/:userId # Update role
+```
+
+### Invitations
+```http
+POST   /invitations                    # Create invitation (send email)
+GET    /invitations                    # List user invitations
+GET    /invitations/pending            # List pending invitations
+POST   /invitations/:invitationId/accept   # Accept invitation
+POST   /invitations/:invitationId/decline  # Decline invitation
+DELETE /invitations/:invitationId      # Delete invitation
 ```
 
 ### Projects
@@ -429,11 +459,26 @@ npm run start:api
 ## Environment Variables
 
 ```bash
-DATABASE_URL="file:./prisma/dev.db"
+# Database
+DATABASE_URL="postgresql://user:password@localhost:5432/taskmanager"
+# Or for development with SQLite:
+# DATABASE_URL="file:./prisma/dev.db"
+
+# JWT Secrets
 JWT_SECRET="your-super-secret-jwt-key-at-least-32-chars"
 JWT_REFRESH_SECRET="different-super-secret-refresh-key-32-chars"
+
+# Server
 PORT=5000
 NODE_ENV=development
+HOST=0.0.0.0
+
+# Frontend
+FRONTEND_URL="http://localhost:5173,http://localhost:5174,http://localhost:5175"
+
+# Email (Resend)
+RESEND_API_KEY="re_your_api_key_here"
+FROM_EMAIL="noreply@yourdomain.com"
 ```
 
 ---
@@ -463,6 +508,19 @@ npm run db:generate       # Generate Prisma Client
 ---
 
 ## Recent Updates
+
+### Version 1.4.0 (December 2025)
+- Migration from SQLite to PostgreSQL
+- Rebranded to "Kazi"
+- Railway deployment configuration
+- CORS configuration for multiple frontend ports
+- Health check endpoint for monitoring
+
+### Version 1.3.0
+- Email-based invitation system
+- Resend email integration
+- Invitation management (accept/decline)
+- Email notifications for invitations
 
 ### Version 1.2.0
 - Complete Comment system with CRUD
