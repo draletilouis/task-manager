@@ -13,22 +13,16 @@ const UserProfile = () => {
   });
 
   useEffect(() => {
-    if (workspaces && user) {
+    if (workspaces) {
       const stats = {
         totalWorkspaces: workspaces.length,
-        ownedWorkspaces: workspaces.filter(w =>
-          w.members?.some(m => m.userId === user.id && m.role === 'OWNER')
-        ).length,
-        adminWorkspaces: workspaces.filter(w =>
-          w.members?.some(m => m.userId === user.id && m.role === 'ADMIN')
-        ).length,
-        memberWorkspaces: workspaces.filter(w =>
-          w.members?.some(m => m.userId === user.id && m.role === 'MEMBER')
-        ).length
+        ownedWorkspaces: workspaces.filter(w => w.role === 'OWNER').length,
+        adminWorkspaces: workspaces.filter(w => w.role === 'ADMIN').length,
+        memberWorkspaces: workspaces.filter(w => w.role === 'MEMBER').length
       };
       setUserStats(stats);
     }
-  }, [workspaces, user]);
+  }, [workspaces]);
 
   // Get user initials for avatar
   const getInitials = (name) => {
