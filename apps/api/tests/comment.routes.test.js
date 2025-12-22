@@ -75,7 +75,8 @@ describe('Comment Routes', () => {
                 .send({ content: '' });
 
             expect(response.status).toBe(400);
-            expect(response.body.error).toBe('Content is required');
+            expect(response.body.error).toBe('Validation failed');
+            expect(response.body.details).toBeDefined();
         });
 
         it('should return 400 if content is missing', async () => {
@@ -84,7 +85,8 @@ describe('Comment Routes', () => {
                 .send({});
 
             expect(response.status).toBe(400);
-            expect(response.body.error).toBe('Content is required');
+            expect(response.body.error).toBe('Validation failed');
+            expect(response.body.details).toBeDefined();
         });
 
         it('should return 500 on database error', async () => {
@@ -197,7 +199,8 @@ describe('Comment Routes', () => {
                 .send({ content: '' });
 
             expect(response.status).toBe(400);
-            expect(response.body.error).toBe('Content is required');
+            expect(response.body.error).toBe('Validation failed');
+            expect(response.body.details).toBeDefined();
         });
 
         it('should return 403 if user is not the owner', async () => {

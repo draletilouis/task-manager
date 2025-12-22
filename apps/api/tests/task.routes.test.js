@@ -65,14 +65,13 @@ describe('Task Routes', () => {
         });
 
         it('should return 400 on validation error', async () => {
-            mockTaskService.createTask.mockRejectedValueOnce(new Error('Task title is required'));
-
             const response = await request(app)
                 .post('/workspace-123/projects/project-123/tasks')
                 .send({});
 
             expect(response.status).toBe(400);
-            expect(response.body.error).toBe('Task title is required');
+            expect(response.body.error).toBe('Validation failed');
+            expect(response.body.details).toBeDefined();
         });
 
         it('should return 400 when user lacks permission', async () => {
@@ -171,16 +170,13 @@ describe('Task Routes', () => {
         });
 
         it('should return 400 on validation error', async () => {
-            mockTaskService.updateTask.mockRejectedValueOnce(
-                new Error('Invalid task status')
-            );
-
             const response = await request(app)
                 .put('/workspace-123/projects/project-123/tasks/task-123')
                 .send({ status: 'INVALID' });
 
             expect(response.status).toBe(400);
-            expect(response.body.error).toBe('Invalid task status');
+            expect(response.body.error).toBe('Validation failed');
+            expect(response.body.details).toBeDefined();
         });
 
         it('should return 400 when task not found', async () => {

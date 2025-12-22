@@ -61,7 +61,7 @@ describe('Auth Service', () => {
 
         it('should register a new user successfully', async () => {
             const hashedPassword = 'hashed-password';
-            const newUser = { id: 'user-123', email: validEmail };
+            const newUser = { id: 'user-123', email: validEmail, name: null };
 
             mockPrisma.user.findUnique.mockResolvedValueOnce(null);
             bcryptMock.hash.mockResolvedValueOnce(hashedPassword);
@@ -70,11 +70,15 @@ describe('Auth Service', () => {
             const result = await register({ email: validEmail, password: validPassword });
 
             expect(result.message).toBe('User registered successfully');
-            expect(result.user).toEqual({ id: 'user-123', email: validEmail });
+            expect(result.user).toEqual({ id: 'user-123', email: validEmail, name: null });
             expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({ where: { email: validEmail } });
             expect(bcryptMock.hash).toHaveBeenCalledWith(validPassword, 10);
             expect(mockPrisma.user.create).toHaveBeenCalledWith({
-                data: { email: validEmail, password: hashedPassword }
+                data: {
+                    email: validEmail,
+                    password: hashedPassword,
+                    name: null
+                }
             });
         });
 

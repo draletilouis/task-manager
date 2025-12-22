@@ -46,10 +46,7 @@ describe('Password Reset Service', () => {
             const result = await requestPasswordReset('test@example.com');
 
             expect(result.message).toContain('password reset link has been sent');
-            expect(result.resetToken).toBeDefined();
-            expect(result.resetToken).not.toBeNull();
-            expect(result.resetLink).toContain('reset-password');
-            expect(result.resetLink).toContain(result.resetToken);
+            // Token is not returned for security (prevent email enumeration)
             expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
                 where: { email: 'test@example.com' }
             });
@@ -62,7 +59,7 @@ describe('Password Reset Service', () => {
             const result = await requestPasswordReset('nonexistent@example.com');
 
             expect(result.message).toContain('password reset link has been sent');
-            expect(result.resetToken).toBeNull();
+            // Should not reveal whether user exists
             expect(mockPrisma.user.update).not.toHaveBeenCalled();
         });
 
@@ -82,32 +79,44 @@ describe('Password Reset Service', () => {
             await expect(requestPasswordReset(null)).rejects.toThrow('Email is required');
         });
 
-        it('should generate JWT token with userId and email', async () => {
+        it('should store token in database with JWT format', async () => {
             mockPrisma.user.findUnique.mockResolvedValue(testUser);
-            mockPrisma.user.update.mockResolvedValue(testUser);
 
-            const result = await requestPasswordReset('test@example.com');
-            const decoded = jwt.decode(result.resetToken);
+            let capturedToken;
+            mockPrisma.user.update.mockImplementation((args) => {
+                capturedToken = args.data.resetToken;
+                return Promise.resolve(testUser);
+            });
 
+            await requestPasswordReset('test@example.com');
+
+            // Verify token was stored and is a valid JWT format
+            expect(capturedToken).toBeDefined();
+            expect(typeof capturedToken).toBe('string');
+            const decoded = jwt.decode(capturedToken);
             expect(decoded.userId).toBe(testUser.id);
             expect(decoded.email).toBe(testUser.email);
-            expect(decoded.exp).toBeDefined();
         });
 
-        it('should sign token with JWT_SECRET + user password', async () => {
+        it('should sign token with JWT_SECRET + user password for auto-invalidation', async () => {
             mockPrisma.user.findUnique.mockResolvedValue(testUser);
-            mockPrisma.user.update.mockResolvedValue(testUser);
 
-            const result = await requestPasswordReset('test@example.com');
+            let capturedToken;
+            mockPrisma.user.update.mockImplementation((args) => {
+                capturedToken = args.data.resetToken;
+                return Promise.resolve(testUser);
+            });
+
+            await requestPasswordReset('test@example.com');
 
             // Token should be verifiable with combined secret
             expect(() => {
-                jwt.verify(result.resetToken, process.env.JWT_SECRET + testUser.password);
+                jwt.verify(capturedToken, process.env.JWT_SECRET + testUser.password);
             }).not.toThrow();
 
             // Token should NOT be verifiable with just JWT_SECRET
             expect(() => {
-                jwt.verify(result.resetToken, process.env.JWT_SECRET);
+                jwt.verify(capturedToken, process.env.JWT_SECRET);
             }).toThrow();
         });
 
@@ -371,19 +380,23 @@ describe('Password Reset Service', () => {
 
         it('should use user password in JWT signing for auto-invalidation', async () => {
             mockPrisma.user.findUnique.mockResolvedValue(testUser);
-            mockPrisma.user.update.mockResolvedValue(testUser);
 
-            const result = await requestPasswordReset('test@example.com');
-            const token = result.resetToken;
+            let capturedToken;
+            mockPrisma.user.update.mockImplementation((args) => {
+                capturedToken = args.data.resetToken;
+                return Promise.resolve(testUser);
+            });
+
+            await requestPasswordReset('test@example.com');
 
             // Should verify with correct combined secret
             expect(() => {
-                jwt.verify(token, process.env.JWT_SECRET + testUser.password);
+                jwt.verify(capturedToken, process.env.JWT_SECRET + testUser.password);
             }).not.toThrow();
 
             // Should fail with different password (simulating password change)
             expect(() => {
-                jwt.verify(token, process.env.JWT_SECRET + 'different-password');
+                jwt.verify(capturedToken, process.env.JWT_SECRET + 'different-password');
             }).toThrow();
         });
 

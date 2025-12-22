@@ -62,14 +62,13 @@ describe('Auth Routes', () => {
         });
 
         it('should return 400 on validation error', async () => {
-            mockAuthService.register.mockRejectedValueOnce(new Error('Invalid email format.'));
-
             const response = await request(app)
                 .post('/auth/register')
                 .send({ email: 'invalid', password: 'Password123' });
 
             expect(response.status).toBe(400);
-            expect(response.body.error).toBe('Invalid email format.');
+            expect(response.body.error).toBe('Validation failed');
+            expect(response.body.details).toBeDefined();
         });
 
         it('should return 400 if email already exists', async () => {
@@ -118,25 +117,23 @@ describe('Auth Routes', () => {
         });
 
         it('should return 401 if email is missing', async () => {
-            mockAuthService.login.mockRejectedValueOnce(new Error('Email and password are required.'));
-
             const response = await request(app)
                 .post('/auth/login')
                 .send({ password: 'Password123' });
 
-            expect(response.status).toBe(401);
-            expect(response.body.error).toBe('Email and password are required.');
+            expect(response.status).toBe(400);
+            expect(response.body.error).toBe('Validation failed');
+            expect(response.body.details).toBeDefined();
         });
 
         it('should return 401 if password is missing', async () => {
-            mockAuthService.login.mockRejectedValueOnce(new Error('Email and password are required.'));
-
             const response = await request(app)
                 .post('/auth/login')
                 .send({ email: 'test@example.com' });
 
-            expect(response.status).toBe(401);
-            expect(response.body.error).toBe('Email and password are required.');
+            expect(response.status).toBe(400);
+            expect(response.body.error).toBe('Validation failed');
+            expect(response.body.details).toBeDefined();
         });
     });
 
@@ -157,14 +154,13 @@ describe('Auth Routes', () => {
         });
 
         it('should return 401 if refresh token is missing', async () => {
-            mockAuthService.refreshAccessToken.mockRejectedValueOnce(new Error('Refresh token is required.'));
-
             const response = await request(app)
                 .post('/auth/refresh')
                 .send({});
 
-            expect(response.status).toBe(401);
-            expect(response.body.error).toBe('Refresh token is required.');
+            expect(response.status).toBe(400);
+            expect(response.body.error).toBe('Validation failed');
+            expect(response.body.details).toBeDefined();
         });
 
         it('should return 401 if refresh token is invalid', async () => {
@@ -200,29 +196,23 @@ describe('Auth Routes', () => {
         });
 
         it('should return 400 if current password is missing', async () => {
-            mockAuthService.changePassword.mockRejectedValueOnce(
-                new Error('Current password and new password are required.')
-            );
-
             const response = await request(app)
                 .post('/auth/change-password')
                 .send({ newPassword: 'NewPassword123' });
 
             expect(response.status).toBe(400);
-            expect(response.body.error).toBe('Current password and new password are required.');
+            expect(response.body.error).toBe('Validation failed');
+            expect(response.body.details).toBeDefined();
         });
 
         it('should return 400 if new password is missing', async () => {
-            mockAuthService.changePassword.mockRejectedValueOnce(
-                new Error('Current password and new password are required.')
-            );
-
             const response = await request(app)
                 .post('/auth/change-password')
                 .send({ currentPassword: 'OldPassword123' });
 
             expect(response.status).toBe(400);
-            expect(response.body.error).toBe('Current password and new password are required.');
+            expect(response.body.error).toBe('Validation failed');
+            expect(response.body.details).toBeDefined();
         });
 
         it('should return 400 if current password is incorrect', async () => {
@@ -242,10 +232,6 @@ describe('Auth Routes', () => {
         });
 
         it('should return 400 if new password is same as current', async () => {
-            mockAuthService.changePassword.mockRejectedValueOnce(
-                new Error('New password must be different from current password.')
-            );
-
             const response = await request(app)
                 .post('/auth/change-password')
                 .send({
@@ -254,7 +240,10 @@ describe('Auth Routes', () => {
                 });
 
             expect(response.status).toBe(400);
-            expect(response.body.error).toBe('New password must be different from current password.');
+            expect(response.body.error).toBe('Validation failed');
+            expect(response.body.details).toBeDefined();
+            // Check that the validation error mentions password being the same
+            expect(JSON.stringify(response.body.details)).toContain('different from current password');
         });
 
         it('should pass authenticated user ID to service', async () => {

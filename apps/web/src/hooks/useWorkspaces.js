@@ -34,9 +34,9 @@ export const useWorkspaces = () => {
   // Create new workspace
   const addWorkspace = async (workspaceData) => {
     try {
-      const newWorkspace = await createWorkspace(workspaceData);
-      setWorkspaces([...workspaces, newWorkspace]);
-      return newWorkspace;
+      await createWorkspace(workspaceData);
+      // Refetch workspaces to get complete data with memberCount and role
+      await fetchWorkspaces();
     } catch (err) {
       throw new Error(err.message || 'Failed to create workspace');
     }
@@ -45,9 +45,9 @@ export const useWorkspaces = () => {
   // Update existing workspace
   const editWorkspace = async (workspaceId, workspaceData) => {
     try {
-      const updated = await updateWorkspace(workspaceId, workspaceData);
-      setWorkspaces(workspaces.map(ws => ws.id === workspaceId ? updated : ws));
-      return updated;
+      await updateWorkspace(workspaceId, workspaceData);
+      // Refetch workspaces to get complete data
+      await fetchWorkspaces();
     } catch (err) {
       throw new Error(err.message || 'Failed to update workspace');
     }
