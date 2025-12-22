@@ -2,7 +2,7 @@
 
 A modern, collaborative task management system built with React and Node.js. Features workspaces, projects, tasks with Kanban boards, team collaboration, and transactional email notifications.
 
-**Monorepo Architecture** | **JWT Authentication** | **PostgreSQL Database** | **100% Test Coverage** | **Email Integration** | **Global Search** | **Modern UI/UX**
+**Monorepo Architecture** | **JWT Authentication** | **PostgreSQL Database** | **Email Integration** | **Modern UI/UX**
 
 ## Project Status
 
@@ -10,19 +10,18 @@ A modern, collaborative task management system built with React and Node.js. Fea
 
 | Feature | Status | Coverage |
 |---------|--------|----------|
-| **Authentication** | ✅ Complete | 100% tested (39 tests) |
-| **Workspaces** | ✅ Complete | 100% tested (27 tests) |
-| **Projects** | ✅ Complete | 100% tested (20 tests) |
-| **Tasks & Kanban** | ✅ Complete | 100% tested (31 tests) |
-| **Comments** | ✅ Complete | 100% tested (27 tests) |
+| **Authentication** | ✅ Complete | JWT with refresh tokens |
+| **Workspaces** | ✅ Complete | CRUD + role-based access |
+| **Projects** | ✅ Complete | Full project management |
+| **Tasks & Kanban** | ✅ Complete | Drag-and-drop boards |
+| **Comments** | ✅ Complete | Task discussions |
 | **Invitations** | ✅ Complete | Email-based workspace invites |
-| **Global Search** | ✅ Complete | Search workspaces, projects, tasks |
+| **Client-Side Search** | ✅ Complete | Search workspaces & projects |
 | **Email Service** | ✅ Complete | Resend integration active |
 | **Input Validation** | ✅ Complete | All routes protected |
 | **Password Reset** | ✅ Complete | Email-based flow |
-| **API Documentation** | ✅ Complete | All endpoints documented |
 
-**Total Test Suite**: 144/144 tests passing ✅
+**Test Suite**: 140/166 tests passing (84.3%)
 
 ---
 
@@ -63,7 +62,7 @@ A modern, collaborative task management system built with React and Node.js. Fea
 ## Quick Start
 
 **Prerequisites:**
-- Node.js **20.19+** or **22.12+** (required by Vite 7)
+- Node.js **20.0+** (required for ES modules and Vite 7)
 - npm 9.0.0 or higher
 - PostgreSQL database
 
@@ -75,7 +74,7 @@ npm install
 # Create apps/api/.env with your DATABASE_URL
 
 # Initialize database
-npm run db:generate
+cd apps/api && npx prisma generate && cd ../..
 npm run db:migrate
 
 # Start both frontend and backend
@@ -229,11 +228,11 @@ task-manager/
 - Role-based deletion (ADMIN/OWNER override)
 
 ### Search & Navigation
-- **Global search** across workspaces, projects, and tasks
+- **Client-side search** across workspaces and projects
 - **Keyboard shortcut** (Cmd/Ctrl + K) for quick access
-- Real-time search results with instant navigation
+- Real-time filtering with instant navigation
 - Grouped results by resource type
-- Search modal with modern UI
+- Modern search modal UI
 
 ### UI/UX
 - **Authentication Pages**
@@ -289,7 +288,7 @@ npm run build:web        # Build Web (459KB optimized)
 ### Testing
 ```bash
 npm test                 # Test all apps
-npm run test:api         # Test API (96.5% passing)
+npm run test:api         # Test API (84.3% passing)
 npm run test:web         # Test Web
 ```
 
@@ -298,7 +297,6 @@ npm run test:web         # Test Web
 npm run db:migrate       # Run Prisma migrations
 npm run db:seed          # Seed database
 npm run db:studio        # Open Prisma Studio
-npm run db:generate      # Generate Prisma Client
 ```
 
 ### Code Quality
@@ -349,24 +347,20 @@ npm run format           # Format with Prettier
 
 ## Testing
 
-**Overall Coverage**: **144/144 tests passing (100%)** ✅
+**Backend Test Coverage**: **140 passing, 26 failing** (166 total tests, 84.3% pass rate)
 
-| Module | Tests | Status |
-|--------|-------|--------|
-| **Auth Service** | 23/23 | ✅ 100% |
-| **Auth Routes** | 16/16 | ✅ 100% |
-| **Workspace Service** | 27/27 | ✅ 100% |
-| **Project Service** | 20/20 | ✅ 100% |
-| **Task Service** | 16/16 | ✅ 100% |
-| **Task Routes** | 15/15 | ✅ 100% |
-| **Comment Service** | 12/12 | ✅ 100% |
-| **Comment Routes** | 15/15 | ✅ 100% |
+Passing test modules:
+- **Comment Service** - 12 passing tests
+- **Task Service** - 16 passing tests
+- **Project Service** - 20 passing tests
 
 ```bash
 npm run test:api                    # Run all tests
 npm run test:api -- task.service    # Run specific test
 npm run test:api -- --coverage      # Coverage report
 ```
+
+**Note**: Some route tests are currently failing and need attention. Service layer tests are stable.
 
 ---
 
@@ -403,11 +397,6 @@ POST   /invitations/:invitationId/decline  # Decline invitation
 DELETE /invitations/:invitationId          # Delete invitation
 ```
 
-### Search
-```http
-GET    /search?q=query                     # Global search across resources
-```
-
 ### Projects
 ```http
 POST   /workspaces/:workspaceId/projects              # Create project
@@ -435,15 +424,16 @@ DELETE /workspaces/comments/:commentId       # Delete comment (owner/ADMIN/OWNER
 
 ---
 
-## Upcoming Roadmap
+## Future Enhancements
 
-### Next 5 Weeks (Starting December 20, 2025)
+Potential improvements for consideration:
 
-- **Week 1 (Dec 20-26)**: Docker Support & Deployment Setup
-- **Week 2 (Dec 27-Jan 2)**: Rate Limiting & Security Headers (Helmet.js)
-- **Week 3 (Jan 3-9)**: Frontend Testing Suite (Vitest + Testing Library)
-- **Week 4 (Jan 10-16)**: Activity Log System Implementation
-- **Week 5 (Jan 17-23)**: E2E Testing (Playwright/Cypress)
+- **Infrastructure**: Docker containerization for easier deployment
+- **Security**: Rate limiting and security headers (Helmet.js)
+- **Testing**: Frontend testing suite (Vitest + Testing Library)
+- **Features**: Activity logging system (schema already in database)
+- **Testing**: E2E testing (Playwright/Cypress)
+- **Backend**: Fix failing route tests (26 tests currently failing)
 
 ---
 
